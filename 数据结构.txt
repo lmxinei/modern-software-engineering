@@ -1,0 +1,205 @@
+假设有两个按元素值递增次序排列的线性表，均以单链表形式存储。请编写算法将这两个单链表归并为一个按元素值递减次序排列的单链表，并要求利用原来两个单链表的结点存放归并后的单链表。
+算法实现：
+
+//合并两个递增有序链表（带头结点），并使合并后的链表递减排列 
+void MergeList(LinkList &La, LinkList &Lb){
+	LNode *r,*pa = La->next,*pb = Lb->next; //分别是表La和Lb的工作指针 
+	La->next = NULL; //La作为结果链表的头指针，先将结果链表初始化为空 
+	while(pa && pb) //当两链表均不为空时，循环 
+		if(pa->data <= pb->data){
+			r=pa->next; //r暂存pa的后继结点指针
+			pa->next=La->next;
+			La->next=pa; //将pa结点链于结果表中，同时逆置（头插法） 
+			pa=r; //恢复pa为当前待比较结点 
+		}
+		else{
+			r=pb->next; //r暂存pb的后继结点指针
+			pb->next=La->next;
+			La->next=pb; //将pb结点链于结果表中，同时逆置（头插法） 
+			pb=r; //恢复pb为当前待比较结点 
+		}
+		if(pa)
+			pb = pa;
+		while(pb){ //处理剩下的一个非空链表 
+			r=pb->next; //依次插入到La中（头插法 
+			pb->next=La->next; 
+			La->next=pb;
+			pb=r; 
+		}
+	free(La);
+}
+完整代码
+#include <iostream>
+#include <cstdlib>
+#include <cstdio>
+#include <ctime>
+using namespace std;
+typedef char ElemType;
+typedef struct LNode{
+	ElemType data;
+	struct LNode *next;
+}LNode, *LinkList;
+LinkList CreateList(){
+	LinkList L;
+	ElemType c;
+	L = (LinkList)malloc(sizeof(LNode));
+	L->next = NULL;
+	LNode *p , *tail;
+	tail = L;
+	c = getchar();
+	while(c != '#'){
+		p = (LNode *)malloc(sizeof(LNode));
+		p->data = c;
+		tail->next = p;
+		tail = p;
+		c = getchar();
+	}
+	tail->next = NULL;
+	return L;
+}
+void ShowList(LinkList L){
+	LNode *p;
+	p = L->next;
+	while(p != NULL){
+		cout << p->data << " ";
+		p = p->next;
+	}
+	cout << endl;
+}
+//合并两个递增有序链表（带头结点），并使合并后的链表递减排列 
+LinkList MergeList(LinkList &La, LinkList &Lb){
+	LNode *r,*pa = La->next,*pb = Lb->next; //分别是表La和Lb的工作指针 
+	La->next = NULL; //La作为结果链表的头指针，先将结果链表初始化为空 
+	while(pa && pb) //当两链表均不为空时，循环 
+		if(pa->data <= pb->data){
+			r=pa->next; //r暂存pa的后继结点指针
+			pa->next=La->next;
+			La->next=pa; //将pa结点链于结果表中，同时逆置（头插法） 
+			pa=r; //恢复pa为当前待比较结点 
+		}
+		else{
+			r=pb->next; //r暂存pb的后继结点指针
+			pb->next=La->next;
+			La->next=pb; //将pb结点链于结果表中，同时逆置（头插法） 
+			pb=r; //恢复pb为当前待比较结点 
+		}
+		if(pa)
+			pb = pa;
+		while(pb){ //处理剩下的一个非空链表 
+			r=pb->next; //依次插入到La中（头插法 
+			pb->next=La->next; 
+			La->next=pb;
+			pb=r; 
+		}
+	return La;
+}
+int main(){
+	LinkList La,Lb,Lc;
+	La = CreateList();
+	getchar();
+	Lb = CreateList();
+	cout << "La:" << endl;
+	ShowList(La); 
+	cout << "Lb:" << endl;
+	ShowList(Lb);
+	Lc= MergeList(La, Lb);
+	cout << "MergeList:" << endl;
+	ShowList(Lc);
+	return 0;
+}
+本题要求根据给定的一棵二叉树的后序遍历和中序遍历结果，输出该树的先序遍历结果。
+输入格式:
+
+第一行给出正整数N(≤30)，是树中结点的个数。随后两行，每行给出N个整数，分别对应后序遍历和中序遍历结果，数字间以空格分隔。题目保证输入正确对应一棵二叉树。
+输出格式:
+
+在一行中输出Preorder:以及该树的先序遍历结果。数字间有1个空格，行末不得有多余空格。
+输入样例:
+
+7
+2 3 1 5 7 6 4
+1 2 3 4 5 6 7
+1
+2
+3
+输出样例:
+
+Preorder: 4 1 3 2 6 5 7
+1
+代码实现：
+
+/*
+思路：使用递归方法，只要得出根节点、左子树和右子树即可
+      递归边界：输入的个数N<=0的时候返回
+      递归关系：先找到后序遍历数组中的最后一位在中序遍历中的位置，这就是根节点，根节点的左侧是左子树，右侧是右子树
+                然后按照递归的思想，继续分别构造左子树和右子树的根节点、左子树和右子树
+*/
+//头文件包含
+#include<stdlib.h>
+#include<stdio.h>
+#include<malloc.h>
+
+//函数状态码定义
+#define TRUE       1
+#define FALSE      0
+#define OK         1
+#define ERROR      0
+#define OVERFLOW   -1
+#define INFEASIBLE -2
+
+typedef int Status;
+
+typedef int TElemType;
+typedef struct BiNode
+{
+    TElemType data;
+    struct BiNode *lchild, *rchild;
+}BiNode, *BiTree;
+
+BiTree Create(int *Post,int *In,int N)
+{
+    //递归边界
+    if (N <= 0) return NULL;
+
+    //递归关系
+    int *p = In;   //定义一个指针用来遍历中序序列
+    while (*p != *(Post + N -1))
+        p++;  //找到后序序列的最后一位，即根节点
+    BiTree T;
+    T = (BiTree)malloc(sizeof(BiNode));
+    T->data = *p;
+    int len = p - In;   //找到根节点位置左边有几位数字，即左子树
+    T->lchild = Create(Post,In,len);
+    T->rchild = Create(Post + len,p + 1,N - len -1);
+    return T;
+}
+
+void Print(BiTree T)
+{
+    if (T)
+    {
+        printf(" %d",T->data);
+        Print(T->lchild);
+        Print(T->rchild);
+    }
+    return ;
+}
+
+int main()
+{
+    int N;
+    int *Post, *In;
+    scanf("%d",&N);
+    Post = (int*)malloc(N * sizeof(int));
+    In = (int*)malloc(N * sizeof(int));
+    for (int i=0; i<N; i++)
+        scanf("%d",&Post[i]);
+    for (int i=0; i<N; i++)
+        scanf("%d",&In[i]);
+    BiTree T = Create(Post,In,N);
+    printf("Preorder:");
+    Print(T);
+    free(Post);
+    free(In);
+    return 0;
+}
